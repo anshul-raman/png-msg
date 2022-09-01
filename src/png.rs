@@ -1,9 +1,10 @@
 use crate::chunk::Chunk;
 use crate::chunk_type::ChunkType;
 use anyhow::{bail, Error, Result};
+use std::io::Write;
 use std::str::FromStr;
 use std::{
-    fmt,
+    fmt, fs,
     io::{BufReader, Read},
     path::Path,
 };
@@ -23,7 +24,13 @@ impl Png {
 
     /// Creates a `Png` from a file path
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        todo!()
+        let png_file = fs::File::open(path).unwrap();
+        let mut reader = BufReader::new(png_file);
+        let mut png_bytes: Vec<u8> = vec![];
+        reader.read_to_end(&mut png_bytes)?;
+        let png = Png::try_from(png_bytes.as_ref())?;
+
+        Ok(png)
     }
 
     /// Appends a chunk to the end of this `Png` file's `Chunk` list.
