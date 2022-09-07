@@ -1,25 +1,20 @@
+use crate::cli::Commands;
+use anyhow::Result;
 use clap::Parser;
-mod args;
-use args::Commands;
+
 mod chunk;
 mod chunk_type;
-// mod commands;
+mod cli;
+mod commands;
 mod png;
 
-pub type Error = Box<dyn std::error::Error>;
-pub type Result<T> = std::result::Result<T, Error>;
-
 fn main() -> Result<()> {
-    let cli = args::Cli::parse();
+    let cli = cli::Cli::parse();
 
-    match &cli.command {
-        Commands::Encode(args) => {
-            println!("{:?}", args)
-        }
-        Commands::Decode(_) => todo!(),
-        Commands::Remove(_) => todo!(),
-        Commands::Print(_) => todo!(),
+    match cli.command {
+        Commands::Encode(input) => input.encode(),
+        Commands::Decode(input) => input.decode(),
+        Commands::Remove(input) => input.remove(),
+        Commands::Print(input) => input.print(),
     }
-
-    Ok(())
 }

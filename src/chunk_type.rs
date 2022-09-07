@@ -11,6 +11,7 @@ impl ChunkType {
         self.data
     }
 
+    #[allow(dead_code)]
     pub fn is_valid(&self) -> bool {
         self.is_reserved_bit_valid() && self.is_valid_chars()
     }
@@ -26,10 +27,12 @@ impl ChunkType {
         res
     }
 
+    #[allow(dead_code)]
     pub fn is_critical(&self) -> bool {
         self.data[0].is_ascii_uppercase()
     }
 
+    #[allow(dead_code)]
     pub fn is_public(&self) -> bool {
         self.data[1].is_ascii_uppercase()
     }
@@ -38,6 +41,7 @@ impl ChunkType {
         self.data[2].is_ascii_uppercase()
     }
 
+    #[allow(dead_code)]
     pub fn is_safe_to_copy(&self) -> bool {
         self.data[3].is_ascii_lowercase()
     }
@@ -59,7 +63,7 @@ impl FromStr for ChunkType {
     type Err = anyhow::Error;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() != 4 {
-            bail!("Invalid string");
+            bail!("ChunkType must be 4 characters long");
         }
 
         let chunk = ChunkType {

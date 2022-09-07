@@ -1,7 +1,6 @@
 use crate::chunk::Chunk;
 use crate::chunk_type::ChunkType;
 use anyhow::{bail, Error, Result};
-use std::io::Write;
 use std::str::FromStr;
 use std::{
     fmt, fs,
@@ -18,13 +17,14 @@ impl Png {
     pub const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
 
     /// Creates a `Png` from a list of chunks using the correct header
+    #[allow(dead_code)]
     pub fn from_chunks(chunks: Vec<Chunk>) -> Self {
         Png { chunks }
     }
 
     /// Creates a `Png` from a file path
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let png_file = fs::File::open(path).unwrap();
+        let png_file = fs::File::open(path)?;
         let mut reader = BufReader::new(png_file);
         let mut png_bytes: Vec<u8> = vec![];
         reader.read_to_end(&mut png_bytes)?;
@@ -52,11 +52,12 @@ impl Png {
             self.chunks.remove(pos);
             Ok(removed_chunk)
         } else {
-            bail!("Not found");
+            bail!("Chunk not found in image");
         }
     }
 
     /// The header of this PNG.
+    #[allow(dead_code)]
     pub fn header(&self) -> &[u8; 8] {
         &Png::STANDARD_HEADER
     }
@@ -135,8 +136,10 @@ impl TryFrom<&[u8]> for Png {
 impl fmt::Display for Png {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.chunks().into_iter().for_each(|x| {
-            writeln!(f, "chunk type: {}", x.chunk_type()).unwrap();
-            writeln!(f, "chunk data: {}", x).unwrap();
+            if let Ok(chunk_message) = x.data_as_string() {
+                writeln!(f, "{}", x.chunk_type()).unwrap();
+                writeln!(f, "{}", chunk_message).unwrap();
+            }
         });
 
         Ok(())
